@@ -1,0 +1,56 @@
+#!/bin/bash
+
+pwd=$(pwd)
+merge=True
+
+for flag in "$@"
+do
+  if [[ $flag == "--no-merge" || $flag == "-n" ]]; then
+    merge=False
+  fi
+done
+
+
+# Create backup copy of ,bashrc file
+NC='\033[0m' # No Color
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+
+warn() {
+  echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
+error() {
+  echo -e >&2 "${RED}[ERROR]${NC} $1"
+  exit 1
+}
+
+if [ -d "$pwd/backup" ]; then
+  validate="$(find "$pwd/backup/" -maxdepth 0 -empty -exec echo 1 \;)"
+  if [[ -n $validate ]] && (( ! "$validate" == 1 )); then
+    error "folder backup already exists and not empty"
+  fi
+else
+  echo "creating backup folder..."
+  mkdir "backup"
+fi
+
+
+echo "copy bashrc file to backup..."
+cp ~/.bashrc "$pwd/backup/bu.bashrc"
+
+echo "creating patch file..."
+diff -u ~/.bashrc "$pwd/local.bashrc" > bash.patch
+echo $merge
+
+if [[ "$merge" == "True" ]]; then
+  echo "patching file..."
+  patch ~/.bashrc bash.patch
+
+  echo "applying .bashrc file"
+  # shellcheck disable=SC1090
+  source ~/.bashrc
+fi
+
+echo -e "${GREEN}Successfully applied new bash file!"
