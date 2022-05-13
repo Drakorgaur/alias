@@ -18,39 +18,67 @@ docker_exec_bash_by_name() {
 	docker_exec_bash "$cid"
 }
 
-#------------------------------------------------------------------------------------------------
-alias silent="1>/dev/null"              #   runs command without stdin                          |
-                                        #                                                       |
-alias dps="docker ps"                   #                                                       |
-                                        #                                                       |
-alias dc=docker-compose                 #                                                       |
-                                        #                                                       |
-alias dcu="docker-compose up"           #                                                       |
-                                        #                                                       |
-alias dcud="docker-compose up -d"       #                                                       |
-                                        #                                                       |
-alias dcd="docker-compose down"         #                                                       |
-                                        #                                                       |
-alias dcb="docker-compose build"        #                                                       |
-                                        #                                                       |
-alias dcex="docker exec -it"            #                                                       |
-                                        #                                                       |
-alias dcexl=docker_exec_bash_latest     #   opens bash in container that was created last       |
-                                        #                                                       |
-alias dexn=docker_exec_bash_by_name     #   opens bash in container's name include parameter    |
-      # dexn ~[NAME]                    #   requires 1 parameter - container included name      |
-alias dcuxl="dcud && dcexl"             #   runs container(s) and opens in last bash            |
-                                        #                                                       |
-alias dcuxn="dcud && dcexn"             #   runs container(s) and opens bash in named as args   |
-      # duxn ~[NAME]                    #                                                       |
-alias dcbu="dcb && dcu"                 #   build container(s) and ups them                     |
-                                        #                                                       |
-alias dcbud="dcb && dcud"               #   build container(s) and ups them          [silently] |
-                                        #                                                       |
-alias dcdbu="dcd && dcbu"               #   downs container(s) then build and ups them          |
-                                        #                                                       |
-alias dcdbud="dcd && dcdud"             #   downs container(s) then build and ups them[silently]|
-#------------------------------------------------------------------------------------------------
+docker_remove_images() {
+    docker rmi $(docker images -a -q)
+}
+
+docker_remove_containers() {
+    docker stop $(docker ps -a -q)
+    docker rm $(docker ps -a -q)
+}
+
+docker_clear() {
+    docker_remove_containers
+    docker_remove_images
+}
+
+#--------------------------------------------------------------------------------------------------------
+alias s="1>/dev/null"                           #   runs command without stdin                          |
+                                                #                                                       |
+alias dps="docker ps"                           #                                                       |
+                                                #                                                       |
+alias dc=docker-compose                         #                                                       |
+                                                #                                                       |
+alias dcu="docker-compose up"                   #                                                       |
+                                                #                                                       |
+alias dcud="docker-compose up -d"               #                                                       |
+                                                #                                                       |
+alias dcd="docker-compose down"                 #                                                       |
+                                                #                                                       |
+alias dcb="docker-compose build"                #                                                       |
+                                                #                                                       |
+alias dcex="docker exec -it"                    #                                                       |
+                                                #                                                       |
+alias dcexl=docker_exec_bash_latest             #   opens bash in container that was created last       |
+                                                #                                                       |
+alias dexn=docker_exec_bash_by_name             #   opens bash in container's name include parameter    |
+      # dexn ~[NAME]                            #   requires 1 parameter - container included name      |
+alias dcuxl="dcud && dcexl"                     #   runs container(s) and opens in last bash            |
+                                                #                                                       |
+alias dcuxn="dcud && dcexn"                     #   runs container(s) and opens bash in named as args   |
+      # duxn ~[NAME]                            #                                                       |
+alias dcbu="dcb && dcu"                         #   build container(s) and ups them                     |
+                                                #                                                       |
+alias dcbud="dcb && dcud"                       #   build container(s) and ups them          [silently] |
+                                                #                                                       |
+alias dcdbu="dcd && dcbu"                       #   downs container(s) then build and ups them          |
+                                                #                                                       |
+alias dcdbud="dcd && dcdud"                     #   downs container(s) then build and ups them[silently]|
+                                                #                                                       |
+alias drm="docker rm"                           #   removes items                                       |
+                                                #                                                       |
+alias drmimg="docker rmi"                       #   removes items                                       |
+                                                #                                                       |
+alias dcp="docker system prune"                 #   clears images, container(s), volumes                |
+                                                #                                                       |
+alias di="docker images -a"                     #   shows all container's images                        |
+                                                #                                                       |
+alias drmi=docker_remove_images                 #   removes all unused images                           |
+                                                #                                                       |
+alias drmc=docker_remove_containers             #   removes all unused containers                       |
+                                                #                                                       |
+alias dclear=docker_clear                       #   removes all unused containers and images            |
+#--------------------------------------------------------------------------------------------------------
 
 
 # If not running interactively, don't do anything
