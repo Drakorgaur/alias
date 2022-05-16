@@ -2,8 +2,26 @@
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
 
+cat_help_table() {
+    awk -v var="#__ALIAS__HELP__TABLE" 'BEGIN { ORS=" " };$0 ~ var {print NR}' ~/.bashrc
+}
+
+alias_help() {
+    start=$(awk '{print $2}' <<< $(cat_help_table) )
+    end=$(awk '{print $3}' <<< $(cat_help_table) )
+    ((start=$start+2))
+    ((end=$end-2))
+    sed -n -e "$start,$end p" -e "$end q" ~/.bashrc
+}
+
 docker_exec_bash() {
 	docker exec -it "$1" bash
+}
+
+docker_run_name() {
+    # runs containers by image id that provided by awk that matches images by name($1)
+    # and pattern that image name should has as substring
+	docker run $(awk -v include="$1" '$1 ~ include {print $3}' <<< $(docker images))
 }
 
 # Opens last created container's bash
@@ -32,10 +50,15 @@ docker_clear() {
     docker_remove_images
 }
 
+#__ALIAS__HELP__TABLE
 #--------------------------------------------------------------------------------------------------------
 alias s="1>/dev/null"                           #   runs command without stdin                          |
                                                 #                                                       |
+alias hh=alias_help                             #   shows this table in the terminal                    |
+                                                #                                                       |
 alias dps="docker ps"                           #                                                       |
+                                                #                                                       |
+alias drun="docker run"                         #                                                       |
                                                 #                                                       |
 alias dc=docker-compose                         #                                                       |
                                                 #                                                       |
@@ -79,7 +102,7 @@ alias drmc=docker_remove_containers             #   removes all unused container
                                                 #                                                       |
 alias dclear=docker_clear                       #   removes all unused containers and images            |
 #--------------------------------------------------------------------------------------------------------
-
+#__ALIAS__HELP__TABLE__END__
 
 # If not running interactively, don't do anything
 case $- in
